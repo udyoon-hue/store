@@ -2,10 +2,10 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # Database
-    DATABASE_URL: str = "postgresql://food_delivery:food_delivery_pass@localhost:5432/food_delivery_db"
+    # Database (using SQLite for simplicity)
+    DATABASE_URL: str = "sqlite:///./food_delivery.db"
 
-    # Redis
+    # Redis (optional for now)
     REDIS_URL: str = "redis://localhost:6379"
 
     # JWT
