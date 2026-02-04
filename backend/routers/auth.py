@@ -32,7 +32,7 @@ def signup(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
 
     # Create access token
-    access_token = create_access_token(data={"sub": db_user.id})
+    access_token = create_access_token(data={"sub": str(db_user.id)})
 
     return {
         "access_token": access_token,
@@ -59,7 +59,7 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
         )
 
     # Create access token
-    access_token = create_access_token(data={"sub": user.id})
+    access_token = create_access_token(data={"sub": str(user.id)})
 
     return {
         "access_token": access_token,
