@@ -47,23 +47,17 @@ def get_current_user(
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         user_id_str: str = payload.get("sub")
-        print(f"DEBUG: Decoded user_id_str: {user_id_str}")  # Debug log
         if user_id_str is None:
-            print("DEBUG: user_id is None")  # Debug log
             raise credentials_exception
         user_id: int = int(user_id_str)
-    except JWTError as e:
-        print(f"DEBUG: JWT Error: {e}")  # Debug log
+    except JWTError:
         raise credentials_exception
-    except Exception as e:
-        print(f"DEBUG: Unexpected error: {e}")  # Debug log
+    except ValueError:
         raise credentials_exception
 
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if user is None:
-        print(f"DEBUG: User not found for id: {user_id}")  # Debug log
         raise credentials_exception
-    print(f"DEBUG: User found: {user.email}")  # Debug log
     return user
 
 
