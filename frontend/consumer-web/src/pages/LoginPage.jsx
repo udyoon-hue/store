@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -13,6 +13,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -21,6 +22,8 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const from = location.state?.from || '/';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -28,7 +31,7 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      navigate(from);
     } catch (err) {
       setError(err.response?.data?.detail || '로그인에 실패했습니다.');
     } finally {

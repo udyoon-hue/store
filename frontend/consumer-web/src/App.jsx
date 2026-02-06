@@ -6,8 +6,7 @@ import { CartProvider } from './contexts/CartContext';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import HomePage from './pages/HomePage';
-import StoreDetailPage from './pages/StoreDetailPage';
+import ProductListPage from './pages/ProductListPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
@@ -34,49 +33,31 @@ function PrivateRoute({ children }) {
   return user ? children : <Navigate to="/login" />;
 }
 
-function PublicRoute({ children }) {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  return !user ? children : <Navigate to="/" />;
-}
-
 function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <PublicRoute>
-            <SignupPage />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <Layout />
-          </PrivateRoute>
-        }
-      >
-        <Route index element={<HomePage />} />
-        <Route path="store/:id" element={<StoreDetailPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/" element={<Layout />}>
+        <Route index element={<ProductListPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
-        <Route path="orders" element={<OrdersPage />} />
-        <Route path="orders/:id" element={<OrderDetailPage />} />
+        <Route
+          path="orders"
+          element={
+            <PrivateRoute>
+              <OrdersPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="orders/:id"
+          element={
+            <PrivateRoute>
+              <OrderDetailPage />
+            </PrivateRoute>
+          }
+        />
       </Route>
     </Routes>
   );

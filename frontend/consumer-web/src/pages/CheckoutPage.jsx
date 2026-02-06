@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -15,6 +15,10 @@ import {
   Divider,
   Alert,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useCart } from '../contexts/CartContext';
@@ -24,11 +28,18 @@ import { orderAPI } from '../services/api';
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { cart, store, getTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [deliveryAddress, setDeliveryAddress] = useState(user?.address || '');
   const [deliveryRequest, setDeliveryRequest] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowLoginDialog(true);
+    }
+  }, [user, authLoading]);
 
   const handleSubmit = async () => {
     if (!deliveryAddress.trim()) {
@@ -79,6 +90,24 @@ export default function CheckoutPage() {
 
   return (
     <Container sx={{ mt: 2, mb: 4 }}>
+      <Dialog open={showLoginDialog} onClose={() => {}}>
+        <DialogTitle>로그인이 필요합니다</DialogTitle>
+        <DialogContent>
+          <Typography>
+            주문하시려면 로그인이 필요합니다.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => navigate('/cart')}>취소</Button>
+          <Button onClick={() => navigate('/login', { state: { from: '/checkout' } })} variant="contained">
+            로그인
+          </Button>
+          <Button onClick={() => navigate('/signup', { state: { from: '/checkout' } })} variant="outlined">
+            회원가입
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Box sx={{ mb: 2 }}>
         <IconButton onClick={() => navigate('/cart')}>
           <ArrowBack />

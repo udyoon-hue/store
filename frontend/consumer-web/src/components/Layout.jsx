@@ -14,10 +14,11 @@ import {
   Paper,
 } from '@mui/material';
 import {
-  Home,
+  Restaurant,
   ShoppingCart,
   Receipt,
   Logout,
+  Login,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -30,7 +31,15 @@ export default function Layout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
+  };
+
+  const handleOrdersClick = () => {
+    if (!user) {
+      navigate('/login');
+    } else {
+      navigate('/orders');
+    }
   };
 
   const getBottomNavValue = () => {
@@ -52,13 +61,17 @@ export default function Layout() {
           >
             Food Delivery
           </Typography>
-          {user && (
+          {user ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Typography variant="body2">{user.name}님</Typography>
               <Button color="inherit" onClick={handleLogout} startIcon={<Logout />}>
                 로그아웃
               </Button>
             </Box>
+          ) : (
+            <Button color="inherit" onClick={() => navigate('/login')} startIcon={<Login />}>
+              로그인
+            </Button>
           )}
         </Toolbar>
       </AppBar>
@@ -79,12 +92,12 @@ export default function Layout() {
                 navigate('/cart');
                 break;
               case 2:
-                navigate('/orders');
+                handleOrdersClick();
                 break;
             }
           }}
         >
-          <BottomNavigationAction label="홈" icon={<Home />} />
+          <BottomNavigationAction label="메뉴" icon={<Restaurant />} />
           <BottomNavigationAction
             label="장바구니"
             icon={
