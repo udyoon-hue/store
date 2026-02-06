@@ -54,7 +54,7 @@ export default function Login() {
               Food Delivery Admin
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 4 }}>
-              점주 / 관리자 로그인
+              점주 로그인
             </Typography>
 
             {error && (

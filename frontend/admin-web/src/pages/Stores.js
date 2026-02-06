@@ -14,14 +14,16 @@ import {
   TextField,
   IconButton,
   Chip,
+  Alert,
+  CircularProgress,
 } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { storesAPI } from '../services/api';
 
 export default function Stores() {
-  const [stores, setStores] = useState([]);
+  const [store, setStore] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
-  const [editingStore, setEditingStore] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -34,21 +36,24 @@ export default function Stores() {
   });
 
   useEffect(() => {
-    loadStores();
+    loadStore();
   }, []);
 
-  const loadStores = async () => {
+  const loadStore = async () => {
     try {
       const response = await storesAPI.getMyStores();
-      setStores(response.data);
+      if (response.data && response.data.length > 0) {
+        setStore(response.data[0]); // 첫 번째 가게만 사용
+      }
     } catch (error) {
-      console.error('Failed to load stores:', error);
+      console.error('Failed to load store:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleOpenDialog = (store = null) => {
+  const handleOpenDialog = () => {
     if (store) {
-      setEditingStore(store);
       setFormData({
         name: store.name,
         description: store.description || '',
@@ -59,25 +64,12 @@ export default function Stores() {
         delivery_fee: store.delivery_fee,
         min_order_amount: store.min_order_amount,
       });
-    } else {
-      setEditingStore(null);
-      setFormData({
-        name: '',
-        description: '',
-        category: '',
-        address: '',
-        phone: '',
-        opening_hours: '',
-        delivery_fee: 0,
-        min_order_amount: 0,
-      });
     }
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setEditingStore(null);
   };
 
   const handleChange = (e) => {
@@ -89,115 +81,101 @@ export default function Stores() {
 
   const handleSubmit = async () => {
     try {
-      if (editingStore) {
-        await storesAPI.updateStore(editingStore.id, formData);
-      } else {
-        await storesAPI.createStore(formData);
+      if (store) {
+        await storesAPI.updateStore(store.id, formData);
+        setStore({ ...store, ...formData });
       }
       handleCloseDialog();
-      loadStores();
+      alert('가게 정보가 저장되었습니다');
     } catch (error) {
       console.error('Failed to save store:', error);
       alert(error.response?.data?.detail || '저장에 실패했습니다');
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
-    try {
-      await storesAPI.deleteStore(id);
-      loadStores();
-    } catch (error) {
-      console.error('Failed to delete store:', error);
-      alert('삭제에 실패했습니다');
-    }
-  };
+  if (!store) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="warning">
+          가게 정보를 찾을 수 없습니다. 먼저 가게를 등록해주세요.
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h4" component="h1">
-          가게 관리
+          가게 정보
         </Typography>
         <Button
           variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
+          startIcon={<EditIcon />}
+          onClick={handleOpenDialog}
         >
-          가게 추가
+          정보 수정
         </Button>
       </Box>
 
-      <Grid container spacing={3}>
-        {stores.map((store) => (
-          <Grid item xs={12} md={6} key={store.id}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                  <Typography variant="h6">{store.name}</Typography>
-                  <Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenDialog(store)}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDelete(store.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Box>
-                </Box>
+      <Card>
+        <CardContent>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h5" gutterBottom>{store.name}</Typography>
+            <Box sx={{ mb: 2 }}>
+              <Chip label={store.category || '미분류'} size="small" sx={{ mr: 1 }} />
+              <Chip
+                label={store.is_active ? '영업중' : '휴업'}
+                size="small"
+                color={store.is_active ? 'success' : 'default'}
+              />
+            </Box>
+          </Box>
 
-                <Typography variant="body2" color="text.secondary" paragraph>
-                  {store.description}
-                </Typography>
-
-                <Box sx={{ mb: 1 }}>
-                  <Chip label={store.category || '미분류'} size="small" sx={{ mr: 1 }} />
-                  <Chip
-                    label={store.is_active ? '영업중' : '휴업'}
-                    size="small"
-                    color={store.is_active ? 'success' : 'default'}
-                  />
-                </Box>
-
-                <Typography variant="body2" sx={{ mt: 2 }}>
-                  📍 {store.address}
-                </Typography>
-                <Typography variant="body2">
-                  📞 {store.phone || '-'}
-                </Typography>
-                <Typography variant="body2">
-                  🏍️ 배달비: ₩{store.delivery_fee.toLocaleString()}
-                </Typography>
-                <Typography variant="body2">
-                  💰 최소주문: ₩{store.min_order_amount.toLocaleString()}
-                </Typography>
-                <Typography variant="body2">
-                  ⭐ 평점: {store.rating.toFixed(1)}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {stores.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="body1" color="text.secondary">
-            등록된 가게가 없습니다
+          <Typography variant="body1" color="text.secondary" paragraph>
+            {store.description}
           </Typography>
-        </Box>
-      )}
+
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                📍 <strong>주소:</strong> {store.address}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                📞 <strong>전화번호:</strong> {store.phone || '-'}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                🕐 <strong>영업시간:</strong> {store.opening_hours || '-'}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                🏍️ <strong>배달비:</strong> ₩{store.delivery_fee.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                💰 <strong>최소주문금액:</strong> ₩{store.min_order_amount.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" sx={{ mb: 1 }}>
+                ⭐ <strong>평점:</strong> {store.rating.toFixed(1)}
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {editingStore ? '가게 수정' : '가게 추가'}
+          가게 정보 수정
         </DialogTitle>
         <DialogContent>
           <TextField
