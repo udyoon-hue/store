@@ -27,9 +27,9 @@ import { useAuth } from '../context/AuthContext';
 const drawerWidth = 240;
 
 const menuItems = [
-  { text: '가게 관리', icon: <StoreIcon />, path: '/stores' },
   { text: '상품 관리', icon: <InventoryIcon />, path: '/products' },
   { text: '주문 관리', icon: <ReceiptIcon />, path: '/orders' },
+  { text: '가게 정보', icon: <StoreIcon />, path: '/stores' },
 ];
 
 export default function Layout() {

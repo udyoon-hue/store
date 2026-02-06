@@ -40,7 +40,7 @@ function PublicRoute({ children }) {
     return null;
   }
 
-  return !isAuthenticated ? children : <Navigate to="/stores" />;
+  return !isAuthenticated ? children : <Navigate to="/products" />;
 }
 
 function AppRoutes() {
@@ -70,7 +70,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       >
-        <Route index element={<Navigate to="/stores" />} />
+        <Route index element={<Navigate to="/products" />} />
         <Route path="stores" element={<Stores />} />
         <Route path="products" element={<Products />} />
         <Route path="orders" element={<Orders />} />
