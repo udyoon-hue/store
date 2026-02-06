@@ -9,7 +9,6 @@ import {
   Typography,
   Alert,
   Link,
-  MenuItem,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -81,7 +80,7 @@ export default function Signup() {
               회원가입
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 4 }}>
-              점주 / 관리자 계정 생성
+              점주 계정 생성
             </Typography>
 
             {error && (
@@ -118,19 +117,6 @@ export default function Signup() {
                 onChange={handleChange}
                 margin="normal"
               />
-              <TextField
-                fullWidth
-                select
-                label="역할"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                margin="normal"
-                required
-              >
-                <MenuItem value="store_owner">점주</MenuItem>
-                <MenuItem value="admin">관리자</MenuItem>
-              </TextField>
               <TextField
                 fullWidth
                 label="비밀번호"
