@@ -37,23 +37,23 @@ api.interceptors.response.use(
 
 // Auth APIs
 export const authAPI = {
-  signup: (data) => api.post('/auth/signup', data),
-  login: (data) => api.post('/auth/login', data),
-  getCurrentUser: () => api.get('/auth/me'),
+  signup: (data) => api.post('/api/auth/signup', data),
+  login: (data) => api.post('/api/auth/login', data),
+  getCurrentUser: () => api.get('/api/auth/me'),
 };
 
 // Store APIs
 export const storeAPI = {
-  getStores: () => api.get('/stores/'),
-  getStore: (id) => api.get(`/stores/${id}`),
-  getStoreProducts: (id) => api.get(`/stores/${id}/products`),
+  getStores: () => api.get('/api/stores/'),
+  getStore: (id) => api.get(`/api/stores/${id}`),
+  getStoreProducts: (id) => api.get(`/api/stores/${id}/products`),
 };
 
 // Order APIs
 export const orderAPI = {
-  createOrder: (data) => api.post('/orders/', data),
-  getMyOrders: () => api.get('/orders/my'),
-  getOrder: (id) => api.get(`/orders/${id}`),
+  createOrder: (data) => api.post('/api/orders/', data),
+  getMyOrders: () => api.get('/api/orders/my'),
+  getOrder: (id) => api.get(`/api/orders/${id}`),
 };
 
 export default api;
