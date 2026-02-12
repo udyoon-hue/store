@@ -1,24 +1,18 @@
 import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
   Box,
-  Container,
-  IconButton,
   Badge,
   BottomNavigation,
   BottomNavigationAction,
   Paper,
 } from '@mui/material';
 import {
-  Restaurant,
+  Home,
+  LocalShipping,
   ShoppingCart,
-  Receipt,
-  Logout,
-  Login,
+  Chat,
+  Person,
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -26,13 +20,8 @@ import { useCart } from '../contexts/CartContext';
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { cart } = useCart();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   const handleOrdersClick = () => {
     if (!user) {
@@ -44,43 +33,20 @@ export default function Layout() {
 
   const getBottomNavValue = () => {
     if (location.pathname === '/') return 0;
-    if (location.pathname === '/cart') return 1;
-    if (location.pathname === '/orders') return 2;
+    if (location.pathname === '/delivery') return 1;
+    if (location.pathname === '/cart') return 2;
+    if (location.pathname === '/orders') return 3;
+    if (location.pathname === '/mypage') return 4;
     return 0;
   };
 
   return (
-    <Box sx={{ pb: 8 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, cursor: 'pointer' }}
-            onClick={() => navigate('/')}
-          >
-            Food Delivery
-          </Typography>
-          {user ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="body2">{user.name}님</Typography>
-              <Button color="inherit" onClick={handleLogout} startIcon={<Logout />}>
-                로그아웃
-              </Button>
-            </Box>
-          ) : (
-            <Button color="inherit" onClick={() => navigate('/login')} startIcon={<Login />}>
-              로그인
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-
-      <Box sx={{ minHeight: 'calc(100vh - 120px)' }}>
+    <Box sx={{ pb: 7 }}>
+      <Box sx={{ minHeight: '100vh', pb: 7 }}>
         <Outlet />
       </Box>
 
-      <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+      <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }} elevation={3}>
         <BottomNavigation
           value={getBottomNavValue()}
           onChange={(event, newValue) => {
@@ -89,15 +55,26 @@ export default function Layout() {
                 navigate('/');
                 break;
               case 1:
-                navigate('/cart');
+                navigate('/delivery');
                 break;
               case 2:
+                navigate('/cart');
+                break;
+              case 3:
                 handleOrdersClick();
+                break;
+              case 4:
+                if (!user) {
+                  navigate('/login');
+                } else {
+                  navigate('/mypage');
+                }
                 break;
             }
           }}
         >
-          <BottomNavigationAction label="메뉴" icon={<Restaurant />} />
+          <BottomNavigationAction label="홈" icon={<Home />} />
+          <BottomNavigationAction label="배달픽" icon={<LocalShipping />} />
           <BottomNavigationAction
             label="장바구니"
             icon={
@@ -106,7 +83,8 @@ export default function Layout() {
               </Badge>
             }
           />
-          <BottomNavigationAction label="주문내역" icon={<Receipt />} />
+          <BottomNavigationAction label="주문톡" icon={<Chat />} />
+          <BottomNavigationAction label="내정보" icon={<Person />} />
         </BottomNavigation>
       </Paper>
     </Box>
